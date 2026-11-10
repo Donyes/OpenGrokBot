@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import type { ReactNode } from 'react'
 import type { Team } from '../../../shared/types'
 import { openFile } from '../api'
@@ -132,10 +133,10 @@ function FileChip({ path }: { path: string }) {
     <button
       type="button"
       className="file-chip"
-      title={`Open ${path}`}
+      title={t('Open {path}', { path })}
       onClick={(e) => {
         e.stopPropagation()
-        void openFile(path).catch(() => window.alert(`Could not open ${path}`))
+        void openFile(path).catch(() => window.alert(t('Could not open {path}', { path })))
       }}
     >
       <span className="file-chip-icon">↗</span>

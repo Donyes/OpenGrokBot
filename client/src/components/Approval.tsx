@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useState } from 'react'
 import type { ApprovalRequest, Team } from '../../../shared/types'
 import { resolveApproval } from '../api'
@@ -27,7 +28,7 @@ export function ApprovalCard({ team, request }: ApprovalProps) {
       <div className="approval-head">
         <Avatar person={p} size={22} />
         <span>
-          <strong>{p.name}</strong> wants to run <code>{request.tool}</code>
+          <strong>{p.name}</strong> {t('wants to run')} <code>{request.tool}</code>
         </span>
       </div>
       <div className="approval-summary" dir="auto">
@@ -35,19 +36,19 @@ export function ApprovalCard({ team, request }: ApprovalProps) {
       </div>
       {request.summary && input.length > request.summary.length + 20 && (
         <details className="approval-details">
-          <summary>Full input</summary>
+          <summary>{t('Full input')}</summary>
           <pre>{input.slice(0, 4000)}</pre>
         </details>
       )}
       <div className="approval-actions">
         <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void act(true)}>
-          Allow once
+          {t('Allow once')}
         </button>
-        <button type="button" className="btn" disabled={busy} onClick={() => void act(true, true)} title={`Adds an auto-review rule: always allow ${request.tool}`}>
-          Always allow {request.tool}
+        <button type="button" className="btn" disabled={busy} onClick={() => void act(true, true)} title={t('Adds an auto-review rule: always allow {tool}', { tool: request.tool })}>
+          {t('Always allow')} {request.tool}
         </button>
         <button type="button" className="btn btn-danger-ghost" disabled={busy} onClick={() => void act(false)}>
-          Deny
+          {t('Deny')}
         </button>
       </div>
     </div>

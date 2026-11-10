@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import type { Attachment, Conversation, Message, Team } from '../../../shared/types'
@@ -110,7 +111,7 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
     const q = trigger.query.toLowerCase()
     if (trigger.kind === '@') {
       const list: Option[] = members.map((a) => ({ id: a.id, label: a.name, hint: a.role, insert: `@${a.name} `, avatar: a.id }))
-      if (members.length > 1) list.push({ id: 'everyone', label: 'everyone', hint: 'all members reply', insert: '@everyone ' })
+      if (members.length > 1) list.push({ id: 'everyone', label: 'everyone', hint: t('all members reply'), insert: '@everyone ' })
       return list.filter((o) => o.label.toLowerCase().startsWith(q))
     }
     return Object.entries(team.skills)
@@ -248,9 +249,9 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
       {replyTo && (
         <div className="reply-bar">
           <span className="reply-bar-text">
-            Replying to <strong>{replyPerson}</strong>: <span dir="auto">{replyTo.excerpt}</span>
+            {t('Replying to')} <strong>{replyPerson}</strong>: <span dir="auto">{replyTo.excerpt}</span>
           </span>
-          <button type="button" className="icon-button" onClick={onClearReply} aria-label="Cancel reply">
+          <button type="button" className="icon-button" onClick={onClearReply} aria-label={t('Cancel reply')}>
             ×
           </button>
         </div>
@@ -260,12 +261,12 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
           {attachments.map((a) => (
             <span key={a.path} className="compose-attachment">
               📎 {a.name}
-              <button type="button" onClick={() => setAttachments((prev) => prev.filter((x) => x.path !== a.path))} aria-label="Remove">
+              <button type="button" onClick={() => setAttachments((prev) => prev.filter((x) => x.path !== a.path))} aria-label={t('Remove')}>
                 ×
               </button>
             </span>
           ))}
-          {uploading > 0 && <span className="compose-attachment muted">Uploading…</span>}
+          {uploading > 0 && <span className="compose-attachment muted">{t('Uploading…')}</span>}
         </div>
       )}
       {error && <div className="form-error">{error}</div>}
@@ -280,7 +281,7 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
             e.target.value = ''
           }}
         />
-        <button type="button" className="composer-plus" onClick={() => fileInput.current?.click()} aria-label="Attach files" title="Attach files (or drop them here)">
+        <button type="button" className="composer-plus" onClick={() => fileInput.current?.click()} aria-label={t('Attach files')} title={t('Attach files (or drop them here)')}>
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <path d="M10 4v12M4 10h12" />
           </svg>
@@ -289,7 +290,7 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
           ref={area}
           rows={1}
           value={text}
-          placeholder={conversation.memberIds.length > 4 ? `Message the ${team.company} team` : `Message ${conversationTitle(team, conversation)}`}
+          placeholder={conversation.memberIds.length > 4 ? t('Message the {company} team', { company: team.company }) : t('Message {name}', { name: conversationTitle(team, conversation) })}
           onChange={(e) => {
             setText(e.target.value)
             setCaret(e.target.selectionStart)
@@ -306,7 +307,7 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
           }}
         />
         {dictation.supported && (
-          <button type="button" className={`composer-mic${dictation.listening ? ' is-on' : ''}`} onClick={dictation.toggle} aria-label={dictation.listening ? 'Stop dictation' : 'Dictate'} title="Dictate">
+          <button type="button" className={`composer-mic${dictation.listening ? ' is-on' : ''}`} onClick={dictation.toggle} aria-label={dictation.listening ? t('Stop dictation') : t('Dictate')} title={t('Dictate')}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <rect x="7" y="2.5" width="6" height="10" rx="3" />
               <path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v3M7 18h6" />
@@ -314,13 +315,13 @@ export function Composer({ team, conversation, busy, replyTo, onClearReply, onSe
           </button>
         )}
         {busy ? (
-          <button type="button" className="composer-action is-stop" onClick={onStop} aria-label="Stop the team">
+          <button type="button" className="composer-action is-stop" onClick={onStop} aria-label={t('Stop the team')}>
             <svg width="14" height="14" viewBox="0 0 14 14">
               <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor" />
             </svg>
           </button>
         ) : (
-          <button type="button" className="composer-action" onClick={() => void submit()} disabled={(text.trim().length === 0 && attachments.length === 0) || sending || uploading > 0} aria-label="Send">
+          <button type="button" className="composer-action" onClick={() => void submit()} disabled={(text.trim().length === 0 && attachments.length === 0) || sending || uploading > 0} aria-label={t('Send')}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 16V4M4.5 9.5L10 4l5.5 5.5" />
             </svg>

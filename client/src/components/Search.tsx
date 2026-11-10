@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useRef, useState } from 'react'
 import type { Conversation, Team } from '../../../shared/types'
 import { conversationTitle, personFor } from '../people'
@@ -28,7 +29,7 @@ export function Search({ team, conversations, onPick, onClose }: SearchProps) {
   const hits: Hit[] = []
   for (const c of conversations) {
     const title = conversationTitle(team, c)
-    if (!needle || title.toLowerCase().includes(needle)) hits.push({ conversationId: c.id, title, snippet: c.kind === 'group' ? 'Group chat' : 'Direct message', at: Number.MAX_SAFE_INTEGER })
+    if (!needle || title.toLowerCase().includes(needle)) hits.push({ conversationId: c.id, title, snippet: t(c.kind === 'group' ? 'Group chat' : 'Direct message'), at: Number.MAX_SAFE_INTEGER })
   }
   if (needle.length >= 2) {
     for (const c of conversations) {
@@ -36,7 +37,7 @@ export function Search({ team, conversations, onPick, onClose }: SearchProps) {
       for (const m of [...c.messages].reverse()) {
         const i = m.text.toLowerCase().indexOf(needle)
         if (i === -1) continue
-        const who = m.authorId === 'user' ? team.owner.name : m.authorId === 'routine' ? 'Routine' : personFor(team, m.authorId).name
+        const who = m.authorId === 'user' ? team.owner.name : m.authorId === 'routine' ? t('Routine') : personFor(team, m.authorId).name
         hits.push({ conversationId: c.id, messageId: m.id, title: `${who} · ${title}`, snippet: m.text.slice(Math.max(0, i - 40), i + 80).replace(/\s+/g, ' '), at: m.createdAt })
         if (hits.length > 60) break
       }
@@ -47,11 +48,11 @@ export function Search({ team, conversations, onPick, onClose }: SearchProps) {
 
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal palette" role="dialog" aria-label="Search">
+      <div className="modal palette" role="dialog" aria-label={t('Search')}>
         <input
           ref={input}
           value={q}
-          placeholder="Search chats and messages…"
+          placeholder={t('Search chats and messages…')}
           onChange={(e) => {
             setQ(e.target.value)
             setCursor(0)
@@ -70,7 +71,7 @@ export function Search({ team, conversations, onPick, onClose }: SearchProps) {
           }}
         />
         <div className="palette-list">
-          {shown.length === 0 && <div className="palette-empty">Nothing found.</div>}
+          {shown.length === 0 && <div className="palette-empty">{t('Nothing found.')}</div>}
           {shown.map((h, i) => (
             <button key={`${h.conversationId}:${h.messageId ?? ''}`} type="button" className={`palette-item${i === cursor ? ' is-active' : ''}`} onMouseEnter={() => setCursor(i)} onClick={() => pick(h)}>
               <span className="palette-title">{h.title}</span>

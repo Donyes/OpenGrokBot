@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useState } from 'react'
 import { API_PRESETS, PROVIDER_KINDS } from '../../../shared/catalog'
 import type { ProviderDef, ProviderStatus, Team } from '../../../shared/types'
@@ -45,20 +46,20 @@ export function Providers({ team }: ProvidersProps) {
   return (
     <>
       <div className="marketplace-head">
-        <h1>Providers</h1>
+        <h1>{t('Providers')}</h1>
         <div className="row-control">
           <button type="button" className="btn" onClick={() => void refresh(true)} disabled={checking}>
-            {checking ? 'Checking…' : 'Re-check'}
+            {checking ? t('Checking…') : t('Re-check')}
           </button>
           <button type="button" className="btn btn-primary" onClick={() => setAdding(true)}>
-            + API provider
+            {t('+ API provider')}
           </button>
         </div>
       </div>
-      <p className="lead">Every employee picks a provider in their profile. Subscriptions work through the official CLIs on this computer, so nothing is billed per token unless you add an API key.</p>
+      <p className="lead">{t('Every employee picks a provider in their profile. Subscriptions work through the official CLIs on this computer, so nothing is billed per token unless you add an API key.')}</p>
       {error && <div className="form-error">{error}</div>}
 
-      <h4>Subscriptions (CLI logins)</h4>
+      <h4>{t('Subscriptions (CLI logins)')}</h4>
       <div className="card">
         {BUILT_IN.map((id) => {
           const p = team.providers[id]
@@ -72,14 +73,14 @@ export function Providers({ team }: ProvidersProps) {
               <div className="row-text">
                 <div className="row-title">
                   {p.label}
-                  {p.apiKey && <span className="badge">API key</span>}
+                  {p.apiKey && <span className="badge">{t('API key')}</span>}
                 </div>
-                <div className="row-hint">{st ? st.detail : kind?.hint}</div>
-                <div className="row-hint">{users.length ? `Used by ${users.join(', ')}` : 'Not used by anyone yet'}</div>
+                <div className="row-hint">{st ? t(st.detail) : t(kind?.hint ?? '')}</div>
+                <div className="row-hint">{users.length ? t('Used by {users}', { users: users.join(', ') }) : t('Not used by anyone yet')}</div>
               </div>
               <div className="row-control">
                 <button type="button" className="btn" onClick={() => setEditing(id)}>
-                  {p.apiKey ? 'Edit key' : 'Add API key'}
+                  {p.apiKey ? t('Edit key') : t('Add API key')}
                 </button>
               </div>
             </div>
@@ -87,13 +88,13 @@ export function Providers({ team }: ProvidersProps) {
         })}
       </div>
 
-      <h4>API providers</h4>
+      <h4>{t('API providers')}</h4>
       <div className="card">
         {Object.entries(team.providers).filter(([id]) => !BUILT_IN.includes(id)).length === 0 && (
           <div className="row">
             <div className="row-text">
-              <div className="row-title">None yet</div>
-              <div className="row-hint">Add Kimi, OpenRouter, DeepSeek, Groq, xAI Grok, Ollama or any OpenAI-compatible endpoint.</div>
+              <div className="row-title">{t('None yet')}</div>
+              <div className="row-hint">{t('Add Kimi, OpenRouter, DeepSeek, Groq, xAI Grok, Ollama or any OpenAI-compatible endpoint.')}</div>
             </div>
           </div>
         )}
@@ -110,16 +111,16 @@ export function Providers({ team }: ProvidersProps) {
                     {p.label} <span className="muted small">{id}</span>
                   </div>
                   <div className="row-hint">
-                    {p.baseUrl} · {st ? st.detail : 'checking…'}
+                    {p.baseUrl} · {st ? t(st.detail) : t('checking…')}
                   </div>
-                  <div className="row-hint">{users.length ? `Used by ${users.join(', ')}` : 'Not used by anyone yet'}</div>
+                  <div className="row-hint">{users.length ? t('Used by {users}', { users: users.join(', ') }) : t('Not used by anyone yet')}</div>
                 </div>
                 <div className="row-control">
                   <button type="button" className="btn" onClick={() => setEditing(id)}>
-                    Edit
+                    {t('Edit')}
                   </button>
-                  <button type="button" className="btn btn-danger-ghost" onClick={() => void remove(id)} disabled={users.length > 0} title={users.length > 0 ? 'Move its employees to another provider first' : ''}>
-                    Remove
+                  <button type="button" className="btn btn-danger-ghost" onClick={() => void remove(id)} disabled={users.length > 0} title={users.length > 0 ? t('Move its employees to another provider first') : ''}>
+                    {t('Remove')}
                   </button>
                 </div>
               </div>
@@ -162,7 +163,7 @@ function ProviderSheet({ team, id, onDone }: { team: Team; id: string | null; on
       const def: Partial<ProviderDef> = builtIn
         ? { apiKey: apiKey.trim() || undefined, label: label.trim() || existing?.label }
         : { kind: 'openai', label: label.trim() || pid, baseUrl: baseUrl.trim(), apiKey: apiKey.trim() || undefined, models: models.split(',').map((m) => m.trim()).filter(Boolean) }
-      if (!builtIn && !/^[a-z0-9_-]+$/.test(pid)) throw new Error('Id must be lowercase letters, digits, - or _')
+      if (!builtIn && !/^[a-z0-9_-]+$/.test(pid)) throw new Error(t('Id must be lowercase letters, digits, - or _'))
       await putProvider(pid, def)
       onDone()
     } catch (err) {
@@ -187,32 +188,32 @@ function ProviderSheet({ team, id, onDone }: { team: Team; id: string | null; on
   return (
     <div className="modal-backdrop nested" onMouseDown={(e) => e.target === e.currentTarget && onDone()}>
       <div className="modal sheet" role="dialog">
-        <h2>{builtIn ? `${existing?.label}: API key` : existing ? `Edit ${existing.label}` : 'Add API provider'}</h2>
+        <h2>{builtIn ? t('{label}: API key', { label: existing?.label ?? '' }) : existing ? t('Edit {name}', { name: existing.label }) : t('Add API provider')}</h2>
         {error && <div className="form-error">{error}</div>}
         {builtIn ? (
           <>
             <p className="hint">
-              {id === 'claude' && 'With a key, employees on Claude bill your Anthropic API account per token instead of using the subscription. Leave empty to keep the subscription login.'}
-              {id === 'codex' && 'With a key, Codex bills your OpenAI API account instead of your ChatGPT subscription. Leave empty to keep `codex login`.'}
-              {id === 'gemini' && 'With a key, Gemini CLI uses Google AI Studio billing instead of your Google account login. Leave empty to keep the account login.'}
+              {id === 'claude' && t('With a key, employees on Claude bill your Anthropic API account per token instead of using the subscription. Leave empty to keep the subscription login.')}
+              {id === 'codex' && t('With a key, Codex bills your OpenAI API account instead of your ChatGPT subscription. Leave empty to keep `codex login`.')}
+              {id === 'gemini' && t('With a key, Gemini CLI uses Google AI Studio billing instead of your Google account login. Leave empty to keep the account login.')}
             </p>
             <label className="field">
-              <span>Label</span>
+              <span>{t('Label')}</span>
               <input value={label} onChange={(e) => setLabel(e.target.value)} />
             </label>
             <label className="field">
-              <span>API key</span>
-              <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="leave empty for subscription login" />
-              {apiKey === '••••' && <small>A key is stored. Type a new one to replace it.</small>}
+              <span>{t('API key')}</span>
+              <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={t('leave empty for subscription login')} />
+              {apiKey === '••••' && <small>{t('A key is stored. Type a new one to replace it.')}</small>}
             </label>
           </>
         ) : (
           <>
             {!existing && (
               <label className="field">
-                <span>Preset</span>
+                <span>{t('Preset')}</span>
                 <select value={preset} onChange={(e) => applyPreset(e.target.value)}>
-                  <option value="">Custom…</option>
+                  <option value="">{t('Custom…')}</option>
                   {API_PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.label}
@@ -222,25 +223,25 @@ function ProviderSheet({ team, id, onDone }: { team: Team; id: string | null; on
               </label>
             )}
             <label className="field">
-              <span>Id</span>
+              <span>{t('Id')}</span>
               <input value={pid} onChange={(e) => setPid(e.target.value)} placeholder="kimi" disabled={existing !== undefined} />
             </label>
             <label className="field">
-              <span>Label</span>
+              <span>{t('Label')}</span>
               <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Kimi (Moonshot)" />
             </label>
             <label className="field">
-              <span>Base URL</span>
+              <span>{t('Base URL')}</span>
               <input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://api.moonshot.ai/v1" />
-              <small>OpenAI-compatible: the server must expose /chat/completions and ideally /models.</small>
+              <small>{t('OpenAI-compatible: the server must expose /chat/completions and ideally /models.')}</small>
             </label>
             <label className="field">
-              <span>API key</span>
+              <span>{t('API key')}</span>
               <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={keyHint ?? 'sk-…'} />
-              {keyHint && <small>Get one at {keyHint}</small>}
+              {keyHint && <small>{t('Get one at')} {keyHint}</small>}
             </label>
             <label className="field">
-              <span>Models (comma separated, optional)</span>
+              <span>{t('Models (comma separated, optional)')}</span>
               <input value={models} onChange={(e) => setModels(e.target.value)} placeholder="kimi-k2-thinking, kimi-k2-turbo-preview" />
             </label>
           </>
@@ -248,14 +249,14 @@ function ProviderSheet({ team, id, onDone }: { team: Team; id: string | null; on
         <div className="actions">
           {builtIn && existing?.apiKey && (
             <button type="button" className="btn btn-danger-ghost" onClick={() => void clearKey()} disabled={busy}>
-              Remove key
+              {t('Remove key')}
             </button>
           )}
           <button type="button" className="btn" onClick={onDone}>
-            Cancel
+            {t('Cancel')}
           </button>
           <button type="button" className="btn btn-primary" disabled={busy || (!builtIn && (!pid.trim() || !baseUrl.trim()))} onClick={() => void save()}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? t('Saving…') : t('Save')}
           </button>
         </div>
       </div>

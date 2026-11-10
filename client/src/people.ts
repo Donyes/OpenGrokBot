@@ -1,3 +1,4 @@
+import { getLanguage, t } from './i18n'
 import type { Agent, Conversation, Team } from '../../shared/types'
 
 export interface Person {
@@ -10,7 +11,7 @@ export interface Person {
 }
 
 export function personFor(team: Team, id: string): Person {
-  if (id === 'routine') return { id, label: 'ROUTINE', name: 'Routine', color: '#f59e0b', kind: 'agent' }
+  if (id === 'routine') return { id, label: t('ROUTINE'), name: t('Routine'), color: '#f59e0b', kind: 'agent' }
   if (id === 'user') {
     return { id, label: team.owner.name, name: team.owner.name, color: '#8e8e93', kind: 'owner' }
   }
@@ -34,5 +35,5 @@ export function conversationAvatars(c: Conversation): string[] {
 }
 
 export function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  return new Date(ts).toLocaleTimeString(getLanguage(), { hour: 'numeric', minute: '2-digit' })
 }
