@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useState } from 'react'
 import type { Conversation, Routine, Team } from '../../../shared/types'
 import { cronPresets, deleteRoutine, putRoutine, runRoutine } from '../api'
@@ -49,19 +50,19 @@ export function Routines({ team, conversations, routines }: RoutinesProps) {
   return (
     <>
       <div className="marketplace-head">
-        <h1>Routines</h1>
+        <h1>{t('Routines')}</h1>
         <button type="button" className="btn btn-primary" onClick={() => setEditing(null)}>
-          + New routine
+          {t('+ New routine')}
         </button>
       </div>
-      <p className="lead">A routine makes one employee do a job on a schedule, or whenever something hits its webhook (Slack, GitHub, Zapier, a cron service). The result lands in the conversation you pick. Runs while this app is open.</p>
+      <p className="lead">{t('A routine makes one employee do a job on a schedule, or whenever something hits its webhook (Slack, GitHub, Zapier, a cron service). The result lands in the conversation you pick. Runs while this app is open.')}</p>
       {error && <div className="form-error">{error}</div>}
       <div className="card">
         {routines.length === 0 && (
           <div className="row">
             <div className="row-text">
-              <div className="row-title">No routines yet</div>
-              <div className="row-hint">Example: every weekday at 09:00, Karim posts the outreach list for the day. Or: when a GitHub webhook fires, Omar reviews the commit.</div>
+              <div className="row-title">{t('No routines yet')}</div>
+              <div className="row-hint">{t('Example: every weekday at 09:00, Karim posts the outreach list for the day. Or: when a GitHub webhook fires, Omar reviews the commit.')}</div>
             </div>
           </div>
         )}
@@ -75,28 +76,28 @@ export function Routines({ team, conversations, routines }: RoutinesProps) {
               <div className="row-text">
                 <div className="row-title">
                   {r.name}
-                  {!r.enabled && <span className="badge">paused</span>}
+                  {!r.enabled && <span className="badge">{t('paused')}</span>}
                 </div>
                 <div className="row-hint">
-                  {p.name} → {conv ? conversationTitle(team, conv) : r.conversationId} · {r.cron ? `cron ${r.cron}` : 'webhook only'}
-                  {r.nextRunAt ? ` · next ${formatRelative(r.nextRunAt)}` : ''}
+                  {p.name} → {conv ? conversationTitle(team, conv) : r.conversationId} · {r.cron ? `cron ${r.cron}` : t('webhook only')}
+                  {r.nextRunAt ? t(' · next {time}', { time: formatRelative(r.nextRunAt) }) : ''}
                 </div>
                 <div className="row-hint">
-                  {last ? `Last run ${formatRelative(last.at)}: ${last.status}${last.error ? ` (${last.error})` : ''} in ${formatDuration(last.durationMs)}` : 'Never ran'} · webhook <code>POST /api/hooks/{r.id}</code>
+                  {last ? t('Last run {time}: {status}{error} in {duration}', { time: formatRelative(last.at), status: t(last.status), error: last.error ? ` (${last.error})` : '', duration: formatDuration(last.durationMs) }) : t('Never ran')} · webhook <code>POST /api/hooks/{r.id}</code>
                 </div>
               </div>
               <div className="row-control">
                 <button type="button" className="btn" disabled={busy === r.id} onClick={() => void run(r.id)}>
-                  {busy === r.id ? 'Running…' : 'Run now'}
+                  {busy === r.id ? t('Running…') : t('Run now')}
                 </button>
                 <button type="button" className="btn" onClick={() => void toggle(r)}>
-                  {r.enabled ? 'Pause' : 'Resume'}
+                  {r.enabled ? t('Pause') : t('Resume')}
                 </button>
                 <button type="button" className="btn" onClick={() => setEditing(r)}>
-                  Edit
+                  {t('Edit')}
                 </button>
                 <button type="button" className="btn btn-danger-ghost" onClick={() => void remove(r.id)}>
-                  Delete
+                  {t('Delete')}
                 </button>
               </div>
             </div>
@@ -141,14 +142,14 @@ function RoutineSheet({ team, conversations, routine, onDone }: { team: Team; co
   return (
     <div className="modal-backdrop nested" onMouseDown={(e) => e.target === e.currentTarget && onDone()}>
       <div className="modal sheet" role="dialog">
-        <h2>{routine ? 'Edit routine' : 'New routine'}</h2>
+        <h2>{routine ? t('Edit routine') : t('New routine')}</h2>
         {error && <div className="form-error">{error}</div>}
         <label className="field">
-          <span>Name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Morning outreach list" autoFocus />
+          <span>{t('Name')}</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Morning outreach list')} autoFocus />
         </label>
         <label className="field">
-          <span>Employee</span>
+          <span>{t('Employee')}</span>
           <select value={agentId} onChange={(e) => setAgentId(e.target.value)}>
             {team.agents.map((a) => (
               <option key={a.id} value={a.id}>
@@ -158,40 +159,40 @@ function RoutineSheet({ team, conversations, routine, onDone }: { team: Team; co
           </select>
         </label>
         <label className="field">
-          <span>Post the result in</span>
+          <span>{t('Post the result in')}</span>
           <select value={conversationId} onChange={(e) => setConversationId(e.target.value)}>
             {eligible.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.kind === 'group' ? `Group · ${conversationTitle(team, c)}` : `DM · ${conversationTitle(team, c)}`}
+                {c.kind === 'group' ? t('Group · {name}', { name: conversationTitle(team, c) }) : t('DM · {name}', { name: conversationTitle(team, c) })}
               </option>
             ))}
           </select>
         </label>
         <label className="field">
-          <span>Schedule (cron, local time; leave empty for webhook-only)</span>
+          <span>{t('Schedule (cron, local time; leave empty for webhook-only)')}</span>
           <input value={cron} onChange={(e) => setCron(e.target.value)} placeholder="0 9 * * 0-4" />
           <div className="chips">
             {presets.map((p) => (
               <button key={p.cron} type="button" className={`chip${cron === p.cron ? ' is-active' : ''}`} onClick={() => setCron(p.cron)}>
-                {p.label}
+                {t(p.label)}
               </button>
             ))}
             <button type="button" className={`chip${cron === '' ? ' is-active' : ''}`} onClick={() => setCron('')}>
-              Webhook only
+              {t('Webhook only')}
             </button>
           </div>
         </label>
         <label className="field">
-          <span>Instruction</span>
-          <textarea rows={5} value={instruction} onChange={(e) => setInstruction(e.target.value)} placeholder="Pull today's leads from …, skip anyone already contacted, and post a ranked list with one line each. Do not send anything." />
-          <small>Written like a message to that employee. Their tools, folder and personality apply as usual.</small>
+          <span>{t('Instruction')}</span>
+          <textarea rows={5} value={instruction} onChange={(e) => setInstruction(e.target.value)} placeholder={t('Pull today\'s leads from …, skip anyone already contacted, and post a ranked list with one line each. Do not send anything.')} />
+          <small>{t('Written like a message to that employee. Their tools, folder and personality apply as usual.')}</small>
         </label>
         <div className="actions">
           <button type="button" className="btn" onClick={onDone}>
-            Cancel
+            {t('Cancel')}
           </button>
           <button type="button" className="btn btn-primary" disabled={busy || !instruction.trim() || !conversationId} onClick={() => void save()}>
-            {busy ? 'Saving…' : 'Save'}
+            {busy ? t('Saving…') : t('Save')}
           </button>
         </div>
       </div>

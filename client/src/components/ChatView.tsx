@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useRef, useState } from 'react'
 import type { ApprovalRequest, Conversation, Message, Team, UsageSummary } from '../../../shared/types'
 import { formatCost, formatDuration, formatTokens, modelLabel } from '../format'
@@ -39,7 +40,7 @@ function groupMessages(messages: Message[]): Group[] {
 }
 
 function personOf(team: Team, id: string): Person {
-  if (id === 'routine') return { id, label: 'ROUTINE', name: 'Routine', color: '#f59e0b', kind: 'agent' }
+  if (id === 'routine') return { id, label: t('ROUTINE'), name: t('Routine'), color: '#f59e0b', kind: 'agent' }
   return personFor(team, id)
 }
 
@@ -93,11 +94,11 @@ export function ChatView({ team, conversation, typing, usage, approvals, jumpTo,
         <AvatarCluster people={people} size={30} />
         <h1 className="chat-title">{conversationTitle(team, conversation)}</h1>
         {convUsage && (
-          <span className="chat-usage" title="Tokens and API-equivalent cost of this conversation">
-            {formatTokens(convUsage.inputTokens + convUsage.cacheReadTokens + convUsage.cacheCreationTokens + convUsage.outputTokens)} tok · {formatCost(convUsage.costUsd)}
+          <span className="chat-usage" title={t('Tokens and API-equivalent cost of this conversation')}>
+            {formatTokens(convUsage.inputTokens + convUsage.cacheReadTokens + convUsage.cacheCreationTokens + convUsage.outputTokens)} {t('tok')} · {formatCost(convUsage.costUsd)}
           </span>
         )}
-        <button type="button" className={`icon-button${panel ? ' is-active' : ''}`} onClick={() => setShowInfo((v) => !v)} aria-label={panel ? 'Hide members' : 'Show members'}>
+        <button type="button" className={`icon-button${panel ? ' is-active' : ''}`} onClick={() => setShowInfo((v) => !v)} aria-label={panel ? t('Hide members') : t('Show members')}>
           {panel ? <ChevronsIcon /> : <InfoIcon />}
         </button>
       </header>
@@ -107,7 +108,7 @@ export function ChatView({ team, conversation, typing, usage, approvals, jumpTo,
             {groups.length === 0 && (
               <div className="chat-empty">
                 <AvatarCluster people={people} size={56} />
-                <p>{conversation.kind === 'group' ? 'Say something and the right people will jump in.' : `Talk to ${people[0]?.label ?? 'your colleague'} privately.`}</p>
+                <p>{conversation.kind === 'group' ? t('Say something and the right people will jump in.') : t('Talk to {person} privately.', { person: people[0]?.label ?? t('your colleague') })}</p>
               </div>
             )}
             {groups.map((g) => (
@@ -125,7 +126,7 @@ export function ChatView({ team, conversation, typing, usage, approvals, jumpTo,
                   <span className="message-avatar">
                     <Avatar person={p} size={28} />
                   </span>
-                  <div className="bubble bubble-typing" aria-label={`${p.name} is typing`}>
+                  <div className="bubble bubble-typing" aria-label={t('{person} is typing', { person: p.name })}>
                     <span />
                     <span />
                     <span />
@@ -137,7 +138,7 @@ export function ChatView({ team, conversation, typing, usage, approvals, jumpTo,
         </div>
         {panel && (
           <aside className="info-panel">
-            <h2>Members</h2>
+            <h2>{t('Members')}</h2>
             {conversation.memberIds
               .filter((id) => id !== 'user')
               .map((id) => {
@@ -146,20 +147,20 @@ export function ChatView({ team, conversation, typing, usage, approvals, jumpTo,
                 const busy = typing.has(id)
                 const u = usage.byAgent[id]
                 return (
-                  <button key={id} type="button" className="info-member" onClick={() => onEditAgent(id)} title="Edit profile">
+                  <button key={id} type="button" className="info-member" onClick={() => onEditAgent(id)} title={t('Edit profile')}>
                     <Avatar person={p} size={30} />
                     <span className="info-text">
                       <span className="info-name">{p.label}</span>
                       {a && (
                         <span className="info-meta">
                           {(team.providers[a.provider]?.kind ?? 'claude') === 'claude' ? '' : `${team.providers[a.provider]?.label.split(' ')[0] ?? a.provider} · `}
-                          {modelLabel(a.model)} · {a.effort}
-                          {a.muted ? ' · muted' : ''}
-                          {u ? ` · ${formatTokens(u.inputTokens + u.cacheReadTokens + u.cacheCreationTokens + u.outputTokens)} tok` : ''}
+                          {modelLabel(a.model)} · {t(a.effort)}
+                          {a.muted ? t(' · muted') : ''}
+                          {u ? ` · ${formatTokens(u.inputTokens + u.cacheReadTokens + u.cacheCreationTokens + u.outputTokens)} ${t('tok')}` : ''}
                         </span>
                       )}
                     </span>
-                    {busy && <span className="dot" aria-label="typing" />}
+                    {busy && <span className="dot" aria-label={t('typing')} />}
                   </button>
                 )
               })}
@@ -205,19 +206,19 @@ function MessageGroup({ team, group, onReply }: { team: Team; group: Group; onRe
                     ))}
                   </div>
                 )}
-                {m.text.length > 0 ? <RichText text={m.text} team={team} /> : m.status === 'streaming' ? <span className="working">working…</span> : null}
+                {m.text.length > 0 ? <RichText text={m.text} team={team} /> : m.status === 'streaming' ? <span className="working">{t('working…')}</span> : null}
               </div>
               {shared.length > 0 && <AttachmentList items={shared} team={team} />}
               <div className="message-meta">
                 {m.usage && (
                   <span>
-                    {modelLabel(m.usage.model)} · {formatTokens(m.usage.inputTokens + m.usage.cacheReadTokens + m.usage.cacheCreationTokens)} in · {formatTokens(m.usage.outputTokens)} out · {formatCost(m.usage.costUsd)} · {formatDuration(m.usage.durationMs)}
-                    {m.usage.numTurns > 1 ? ` · ${m.usage.numTurns} steps` : ''}
+                    {modelLabel(m.usage.model)} · {formatTokens(m.usage.inputTokens + m.usage.cacheReadTokens + m.usage.cacheCreationTokens)} {t('in')} · {formatTokens(m.usage.outputTokens)} {t('out')} · {formatCost(m.usage.costUsd)} · {formatDuration(m.usage.durationMs)}
+                    {m.usage.numTurns > 1 ? t(' · {count} steps', { count: m.usage.numTurns }) : ''}
                   </span>
                 )}
                 {m.status === 'done' && m.text && (
                   <button type="button" className="link" onClick={() => onReply({ messageId: m.id, authorId: m.authorId, excerpt: m.text.replace(/\s+/g, ' ').slice(0, 120) })}>
-                    Reply
+                    {t('Reply')}
                   </button>
                 )}
               </div>

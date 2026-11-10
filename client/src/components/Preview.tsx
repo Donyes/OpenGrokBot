@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useState } from 'react'
 import type { Attachment, Team } from '../../../shared/types'
 import { fileUrl, openFile } from '../api'
@@ -65,8 +66,8 @@ function TextBody({ a, expanded, team }: { a: Attachment; expanded: boolean; tea
       alive = false
     }
   }, [a.path])
-  if (error) return <div className="file-text muted">Could not load the file.</div>
-  if (text === null) return <div className="file-text muted">Loading…</div>
+  if (error) return <div className="file-text muted">{t('Could not load the file.')}</div>
+  if (text === null) return <div className="file-text muted">{t('Loading…')}</div>
   const limit = expanded ? 60_000 : 2_000
   const shown = text.slice(0, limit)
   const more = text.length > limit
@@ -74,7 +75,7 @@ function TextBody({ a, expanded, team }: { a: Attachment; expanded: boolean; tea
   return (
     <div className={`file-text${isMd ? ' is-md' : ''}`} dir="auto">
       {isMd && team ? <RichText text={shown} team={team} /> : <pre>{shown}</pre>}
-      {more && <div className="muted small">… {formatTokens(text.length - limit)} more characters. Click to expand or Open.</div>}
+      {more && <div className="muted small">… {formatTokens(text.length - limit)} {t('more characters. Click to expand or Open.')}</div>}
     </div>
   )
 }
@@ -90,7 +91,7 @@ export function FileCard({ a, team }: { a: Attachment; team?: Team }) {
   return (
     <div className={`file-card is-${kind}${expanded ? ' is-expanded' : ''}`}>
       {previewable && (
-        <div className="file-body" onClick={() => setExpanded((v) => !v)} role="button" tabIndex={0} title={expanded ? 'Collapse' : 'Expand'}>
+        <div className="file-body" onClick={() => setExpanded((v) => !v)} role="button" tabIndex={0} title={expanded ? t('Collapse') : t('Expand')}>
           {kind === 'image' && <img src={url} alt={a.name} loading="lazy" />}
           {kind === 'video' && <video src={url} controls preload="metadata" onClick={(e) => e.stopPropagation()} />}
           {kind === 'audio' && <audio src={url} controls preload="metadata" onClick={(e) => e.stopPropagation()} />}
@@ -106,9 +107,9 @@ export function FileCard({ a, team }: { a: Attachment; team?: Team }) {
           {a.size > 0 && <span className="muted"> · {sizeLabel(a.size)}</span>}
         </span>
         <button type="button" className="btn btn-pill" onClick={open}>
-          Open
+          {t('Open')}
         </button>
-        <button type="button" className="icon-button" onClick={download} aria-label="Download" title="Download">
+        <button type="button" className="icon-button" onClick={download} aria-label={t('Download')} title={t('Download')}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 3v10M6 9l4 4 4-4M4 16h12" />
           </svg>

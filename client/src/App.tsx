@@ -1,3 +1,4 @@
+import { t, useLanguage } from './i18n'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import type { Conversation, ServerEvent } from '../../shared/types'
 import { clearConversation, deleteConversation, duplicateAgent, exportUrl, fetchState, sendMessageFull, stopRound, updateAgent, updateConversation } from './api'
@@ -20,6 +21,7 @@ interface MenuState {
 }
 
 export function App() {
+  useLanguage()
   const [state, dispatch] = useReducer(reducer, initialState)
   const [activeId, setActiveId] = useState('group')
   const [error, setError] = useState<string | null>(null)
@@ -76,11 +78,11 @@ export function App() {
     if (event.type === 'message:done' && event.message.authorId !== 'user' && event.message.status === 'done') {
       const away = document.hidden || !document.hasFocus() || event.message.conversationId !== current
       if (!away) return
-      title = s.team ? personFor(s.team, event.message.authorId).label : 'Reply'
+      title = s.team ? personFor(s.team, event.message.authorId).label : t('Reply')
       body = event.message.text.slice(0, 160)
       conversationId = event.message.conversationId
     } else if (event.type === 'approval:request') {
-      title = `${s.team ? personFor(s.team, event.request.agentId).name : 'An employee'} needs your approval`
+      title = t('{person} needs your approval', { person: s.team ? personFor(s.team, event.request.agentId).name : t('An employee') })
       body = `${event.request.tool}: ${event.request.summary}`.slice(0, 160)
       conversationId = event.request.conversationId
     } else return
@@ -128,7 +130,7 @@ export function App() {
   if (!state.team || !conversation) {
     return (
       <div className="boot">
-        {error ? <p className="boot-error">Could not reach the OpenGrokBot server: {error}</p> : <p>Opening the office…</p>}
+        {error ? <p className="boot-error">{t('Could not reach the OpenGrokBot server:')} {error}</p> : <p>{t('Opening the office…')}</p>}
       </div>
     )
   }
@@ -143,27 +145,27 @@ export function App() {
     const agentId = c.kind === 'dm' ? c.memberIds.find((id) => id !== 'user') : undefined
     const agent = agentId ? team.agents.find((a) => a.id === agentId) : undefined
     const items: MenuItem[] = []
-    items.push({ label: c.pinned ? 'Unpin' : 'Pin', onClick: () => void updateConversation(c.id, { pinned: !c.pinned }).catch(fail) })
+    items.push({ label: t(c.pinned ? 'Unpin' : 'Pin'), onClick: () => void updateConversation(c.id, { pinned: !c.pinned }).catch(fail) })
     items.push({
-      label: 'Mark as unread',
+      label: t('Mark as unread'),
       onClick: () => {
         markUnread(c.id)
         if (latest.current.activeId === c.id) setActiveId('group')
         setReadTick((t) => t + 1)
       },
     })
-    if (c.id !== 'group') items.push({ label: c.hidden ? 'Unhide' : 'Hide from sidebar', onClick: () => void updateConversation(c.id, { hidden: !c.hidden }).catch(fail) })
-    if (c.kind === 'group') items.push({ label: c.id === 'group' ? 'Rename' : 'Edit chat', onClick: () => setChatEditor(c) })
+    if (c.id !== 'group') items.push({ label: t(c.hidden ? 'Unhide' : 'Hide from sidebar'), onClick: () => void updateConversation(c.id, { hidden: !c.hidden }).catch(fail) })
+    if (c.kind === 'group') items.push({ label: t(c.id === 'group' ? 'Rename' : 'Edit chat'), onClick: () => setChatEditor(c) })
     if (agent) {
-      items.push({ label: 'Edit profile', divider: true, onClick: () => setProfile(agent.id) })
-      items.push({ label: agent.muted ? 'Unmute in groups' : 'Mute in groups', onClick: () => void updateAgent(agent.id, { muted: !agent.muted }).catch(fail) })
-      items.push({ label: 'Duplicate employee', onClick: () => void duplicateAgent(agent.id).then(({ agent: copy }) => setProfile(copy.id)).catch(fail) })
+      items.push({ label: t('Edit profile'), divider: true, onClick: () => setProfile(agent.id) })
+      items.push({ label: t(agent.muted ? 'Unmute in groups' : 'Mute in groups'), onClick: () => void updateAgent(agent.id, { muted: !agent.muted }).catch(fail) })
+      items.push({ label: t('Duplicate employee'), onClick: () => void duplicateAgent(agent.id).then(({ agent: copy }) => setProfile(copy.id)).catch(fail) })
     }
-    items.push({ label: 'Export as Markdown', divider: true, onClick: () => window.open(exportUrl(c.id), '_blank') })
-    items.push({ label: 'Clear conversation', onClick: () => void clearConversation(c.id).catch(fail) })
+    items.push({ label: t('Export as Markdown'), divider: true, onClick: () => window.open(exportUrl(c.id), '_blank') })
+    items.push({ label: t('Clear conversation'), onClick: () => void clearConversation(c.id).catch(fail) })
     if (c.kind === 'group' && c.id !== 'group') {
       items.push({
-        label: 'Delete chat',
+        label: t('Delete chat'),
         danger: true,
         divider: true,
         onClick: () => {
@@ -175,7 +177,7 @@ export function App() {
         },
       })
     }
-    if (agent) items.push({ label: 'Delete employee', danger: true, divider: true, onClick: () => setProfile(agent.id) })
+    if (agent) items.push({ label: t('Delete employee'), danger: true, divider: true, onClick: () => setProfile(agent.id) })
     return items
   }
 
@@ -217,11 +219,11 @@ export function App() {
           }}
           onStop={() => void stopRound(conversation.id)}
         />
-        {!state.connected && <div className="offline">Reconnecting to the office…</div>}
+        {!state.connected && <div className="offline">{t('Reconnecting to the office…')}</div>}
         {error && (
           <div className="toast" role="alert">
             <span>{error}</span>
-            <button type="button" onClick={() => setError(null)} aria-label="Dismiss">
+            <button type="button" onClick={() => setError(null)} aria-label={t('Dismiss')}>
               ×
             </button>
           </div>

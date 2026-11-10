@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useEffect, useState } from 'react'
 import { EFFORTS, MODELS, MODEL_SUGGESTIONS, PERMISSION_MODES, PROVIDER_KINDS, SHAPES, TOOLS } from '../../../shared/catalog'
 import type { Agent, ApprovalPolicy, AvatarShape, Effort, PermissionMode, ProviderStatus, Team, UsageTotals } from '../../../shared/types'
@@ -94,7 +95,7 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
         onSaved(existing.id)
       } else {
         const id = slug(body.name)
-        if (!id) throw new Error('Give the employee a name first.')
+        if (!id) throw new Error(t('Give the employee a name first.'))
         await createAgent({ ...body, id })
         onSaved(id)
       }
@@ -133,25 +134,25 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
   return (
     <aside className="profile">
       <header className="profile-header">
-        <button type="button" className="icon-button" onClick={onClose} aria-label="Close">
+        <button type="button" className="icon-button" onClick={onClose} aria-label={t('Close')}>
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <path d="M12.5 4.5L7 10l5.5 5.5" />
           </svg>
         </button>
-        <h2>{existing ? 'Edit profile' : 'New employee'}</h2>
+        <h2>{existing ? t('Edit profile') : t('New employee')}</h2>
         <button type="button" className="btn btn-primary" disabled={!dirty || saving} onClick={() => void save()}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? t('Saving…') : t('Save')}
         </button>
       </header>
       <div className="profile-body">
         <div className="profile-hero">
           <Avatar person={preview} size={72} />
           <div className="profile-hero-name">
-            {draft.name || 'NAME'} | {draft.role || 'ROLE'}
+            {draft.name || t('NAME')} | {draft.role || t('ROLE')}
           </div>
           {usage && usage.messages > 0 && (
             <div className="profile-hero-meta">
-              {usage.messages} msgs · {formatTokens(usage.inputTokens + usage.cacheReadTokens + usage.cacheCreationTokens)} in · {formatTokens(usage.outputTokens)} out · {formatCost(usage.costUsd)}
+              {usage.messages} {t('msgs')} · {formatTokens(usage.inputTokens + usage.cacheReadTokens + usage.cacheCreationTokens)} {t('in')} · {formatTokens(usage.outputTokens)} {t('out')} · {formatCost(usage.costUsd)}
             </div>
           )}
         </div>
@@ -160,24 +161,24 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
 
         <section className="form-section">
           <label className="field">
-            <span>Name</span>
+            <span>{t('Name')}</span>
             <input value={draft.name} onChange={(e) => set('name', e.target.value)} placeholder="OMAR" />
           </label>
           <label className="field">
-            <span>Role</span>
-            <input value={draft.role} onChange={(e) => set('role', e.target.value)} placeholder="FULL STACK DEV" />
+            <span>{t('Role')}</span>
+            <input value={draft.role} onChange={(e) => set('role', e.target.value)} placeholder={t('FULL STACK DEV')} />
           </label>
           <label className="field">
-            <span>Owns (one line)</span>
-            <input value={draft.scope ?? ''} onChange={(e) => set('scope', e.target.value || undefined)} placeholder="frontend pages, landing pages, HTML/CSS, portfolio" />
-            <small>What this employee answers for. The dispatcher routes messages by it and the employee stays quiet outside it.</small>
+            <span>{t('Owns (one line)')}</span>
+            <input value={draft.scope ?? ''} onChange={(e) => set('scope', e.target.value || undefined)} placeholder={t('frontend pages, landing pages, HTML/CSS, portfolio')} />
+            <small>{t('What this employee answers for. The dispatcher routes messages by it and the employee stays quiet outside it.')}</small>
           </label>
           <label className="field">
-            <span>Label (optional)</span>
-            <input value={draft.department ?? ''} onChange={(e) => set('department', e.target.value || undefined)} placeholder="Engineering" />
+            <span>{t('Label (optional)')}</span>
+            <input value={draft.department ?? ''} onChange={(e) => set('department', e.target.value || undefined)} placeholder={t('Engineering')} />
           </label>
           <div className="field">
-            <span>Look</span>
+            <span>{t('Look')}</span>
             <div className="swatches">
               {PALETTE.map((c) => (
                 <button key={c} type="button" className={`swatch${draft.color === c ? ' is-active' : ''}`} style={{ background: c }} onClick={() => set('color', c)} aria-label={c} />
@@ -185,7 +186,7 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
             </div>
             <div className="shapes">
               {SHAPES.map((s) => (
-                <button key={s} type="button" className={`shape${draft.shape === s ? ' is-active' : ''}`} onClick={() => set('shape', s as AvatarShape)} aria-label={s}>
+                <button key={s} type="button" className={`shape${draft.shape === s ? ' is-active' : ''}`} onClick={() => set('shape', s as AvatarShape)} aria-label={t(s)}>
                   <Avatar person={{ ...preview, agent: { ...draft, shape: s as AvatarShape } }} size={30} />
                 </button>
               ))}
@@ -193,17 +194,17 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
           </div>
           <label className="toggle-row">
             <div>
-              <div className="toggle-title">Muted in groups</div>
-              <div className="toggle-hint">Only speaks in a group chat when someone mentions them.</div>
+              <div className="toggle-title">{t('Muted in groups')}</div>
+              <div className="toggle-hint">{t('Only speaks in a group chat when someone mentions them.')}</div>
             </div>
             <input type="checkbox" className="toggle" checked={draft.muted} onChange={(e) => set('muted', e.target.checked)} />
           </label>
         </section>
 
         <section className="form-section">
-          <h3>Brain</h3>
+          <h3>{t('Brain')}</h3>
           <label className="field">
-            <span>Provider</span>
+            <span>{t('Provider')}</span>
             <select value={draft.provider} onChange={(e) => changeProvider(e.target.value)}>
               {Object.entries(team.providers).map(([id, p]) => (
                 <option key={id} value={id}>
@@ -212,13 +213,13 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
               ))}
             </select>
             <small>
-              {PROVIDER_KINDS.find((k) => k.id === kind)?.hint}
-              {status && <span className={status.ok ? ' ok' : ' bad'}> · {status.detail}</span>}
+              {t(PROVIDER_KINDS.find((k) => k.id === kind)?.hint ?? '')}
+              {status && <span className={status.ok ? ' ok' : ' bad'}> · {t(status.detail)}</span>}
             </small>
           </label>
           <label className="field">
-            <span>Model</span>
-            <input list={`models-${draft.provider}`} value={draft.model} onChange={(e) => set('model', e.target.value)} placeholder={kind === 'claude' ? 'claude-opus-5' : 'model id'} />
+            <span>{t('Model')}</span>
+            <input list={`models-${draft.provider}`} value={draft.model} onChange={(e) => set('model', e.target.value)} placeholder={kind === 'claude' ? 'claude-opus-5' : t('model id')} />
             <datalist id={`models-${draft.provider}`}>
               {modelOptions.map((m) => (
                 <option key={m} value={m}>
@@ -226,65 +227,65 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
                 </option>
               ))}
             </datalist>
-            <small>{MODELS.find((m) => m.id === draft.model)?.hint ?? (kind === 'claude' ? 'Any model id Claude Code accepts.' : kind === 'openai' ? 'Any model the API serves. Test the provider in Settings to list them.' : '"default" uses the CLI’s own configured model.')}</small>
+            <small>{t(MODELS.find((m) => m.id === draft.model)?.hint ?? (kind === 'claude' ? 'Any model id Claude Code accepts.' : kind === 'openai' ? 'Any model the API serves. Test the provider in Settings to list them.' : '"default" uses the CLI’s own configured model.'))}</small>
           </label>
           <label className="field">
-            <span>Effort</span>
+            <span>{t('Effort')}</span>
             <div className="segmented">
               {EFFORTS.map((e) => (
                 <button key={e.id} type="button" className={draft.effort === e.id ? 'is-active' : ''} onClick={() => set('effort', e.id as Effort)}>
-                  {e.label}
+                  {t(e.label)}
                 </button>
               ))}
             </div>
-            <small>How hard the model thinks per reply. Applies to Claude and Codex; other providers ignore it.</small>
+            <small>{t('How hard the model thinks per reply. Applies to Claude and Codex; other providers ignore it.')}</small>
           </label>
           <label className="field">
-            <span>Personality</span>
-            <textarea rows={7} value={draft.personality} onChange={(e) => set('personality', e.target.value)} placeholder="You are …" />
+            <span>{t('Personality')}</span>
+            <textarea rows={7} value={draft.personality} onChange={(e) => set('personality', e.target.value)} placeholder={t('You are …')} />
           </label>
         </section>
 
         <section className="form-section">
-          <h3>Tools</h3>
+          <h3>{t('Tools')}</h3>
           <div className="checks">
-            {availableTools.map((t) => (
-              <label key={t.id} className="check" title={t.hint}>
-                <input type="checkbox" checked={draft.tools.includes(t.id)} onChange={() => toggleList('tools', t.id)} />
-                <span>{t.label}</span>
+            {availableTools.map((tool) => (
+              <label key={tool.id} className="check" title={t(tool.hint)}>
+                <input type="checkbox" checked={draft.tools.includes(tool.id)} onChange={() => toggleList('tools', tool.id)} />
+                <span>{t(tool.label)}</span>
               </label>
             ))}
           </div>
-          {kind === 'openai' && <p className="hint">API employees run these tools locally through OpenGrokBot (file read/search/edit, shell, web fetch).</p>}
-          {(kind === 'codex' || kind === 'gemini') && <p className="hint">Edit/Write/Bash switch the CLI sandbox to workspace-write; otherwise it runs read-only.</p>}
+          {kind === 'openai' && <p className="hint">{t('API employees run these tools locally through OpenGrokBot (file read/search/edit, shell, web fetch).')}</p>}
+          {(kind === 'codex' || kind === 'gemini') && <p className="hint">{t('Edit/Write/Bash switch the CLI sandbox to workspace-write; otherwise it runs read-only.')}</p>}
           <label className="field">
-            <span>Permissions</span>
+            <span>{t('Permissions')}</span>
             <select value={draft.permissionMode} onChange={(e) => set('permissionMode', e.target.value as PermissionMode)}>
               {PERMISSION_MODES.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.label}
+                  {t(p.label)}
                 </option>
               ))}
             </select>
-            <small>{PERMISSION_MODES.find((p) => p.id === draft.permissionMode)?.hint}</small>
+            <small>{t(PERMISSION_MODES.find((p) => p.id === draft.permissionMode)?.hint ?? '')}</small>
           </label>
           <label className="field">
-            <span>Approvals</span>
+            <span>{t('Approvals')}</span>
             <select value={draft.approvals} onChange={(e) => set('approvals', e.target.value as ApprovalPolicy)}>
-              <option value="auto">Run listed tools without asking</option>
-              <option value="ask-dangerous">Ask me before Bash, Write, Edit and MCP tools</option>
-              <option value="ask-all">Ask me before every tool</option>
+              <option value="auto">{t('Run listed tools without asking')}</option>
+              <option value="ask-dangerous">{t('Ask me before Bash, Write, Edit and MCP tools')}</option>
+              <option value="ask-all">{t('Ask me before every tool')}</option>
             </select>
-            <small>Approval cards appear in the chat with Allow once / Always allow / Deny. Auto-review rules in Settings → General can pre-decide. Claude and API employees only; Codex and Gemini follow their own sandbox.</small>
+            <small>{t('Approval cards appear in the chat with Allow once / Always allow / Deny. Auto-review rules in Settings → General can pre-decide. Claude and API employees only; Codex and Gemini follow their own sandbox.')}</small>
           </label>
           <label className="field">
-            <span>Working folder</span>
+            <span>{t('Working folder')}</span>
             <input value={draft.cwd ?? ''} onChange={(e) => set('cwd', e.target.value || undefined)} placeholder={team.workspace} />
           </label>
           <label className="toggle-row">
             <div>
-              <div className="toggle-title">Auto-approve every tool</div>
-              <div className="toggle-hint">Never block on permission prompts (Claude: incl. MCP; Codex: full-access sandbox; API: paths outside the folder).</div>
+              <div className="toggle-title">{t('Auto-approve every tool')}</div>
+              <div className="toggle-hint">{t('Never block on permission prompts (Claude: incl. MCP; Codex: full-access sandbox; API: paths outside the folder).')}</div>
             </div>
             <input type="checkbox" className="toggle" checked={draft.autoApproveTools} onChange={(e) => set('autoApproveTools', e.target.checked)} />
           </label>
@@ -292,9 +293,9 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
 
         {kind === 'claude' && (
           <section className="form-section">
-            <h3>MCP servers</h3>
+            <h3>{t('MCP servers')}</h3>
             {Object.keys(team.mcpServers).length === 0 ? (
-              <p className="hint">None configured yet. Add some from Settings → Marketplace.</p>
+              <p className="hint">{t('None configured yet. Add some from Settings → Marketplace.')}</p>
             ) : (
               <div className="checks">
                 {Object.keys(team.mcpServers).map((name) => (
@@ -307,8 +308,8 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
             )}
             <label className="toggle-row">
               <div>
-                <div className="toggle-title">Use my Claude Code setup</div>
-                <div className="toggle-hint">Loads your own user settings: MCP servers, plugins, skills and CLAUDE.md from ~/.claude.</div>
+                <div className="toggle-title">{t('Use my Claude Code setup')}</div>
+                <div className="toggle-hint">{t('Loads your own user settings: MCP servers, plugins, skills and CLAUDE.md from ~/.claude.')}</div>
               </div>
               <input type="checkbox" className="toggle" checked={draft.inheritClaudeSettings} onChange={(e) => set('inheritClaudeSettings', e.target.checked)} />
             </label>
@@ -321,21 +322,21 @@ export function Profile({ team, agentId, usage, onClose, onSaved }: ProfileProps
           <section className="form-section danger">
             <div className="confirm">
               <button type="button" className="btn" onClick={() => void duplicate()} disabled={saving}>
-                Duplicate
+                {t('Duplicate')}
               </button>
               {confirmDelete ? (
                 <>
-                  <span>Remove {existing.name}?</span>
+                  <span>{t('Remove')} {existing.name}?</span>
                   <button type="button" className="btn btn-danger" onClick={() => void remove()} disabled={saving}>
-                    Delete
+                    {t('Delete')}
                   </button>
                   <button type="button" className="btn" onClick={() => setConfirmDelete(false)}>
-                    Cancel
+                    {t('Cancel')}
                   </button>
                 </>
               ) : (
                 <button type="button" className="btn btn-danger-ghost" onClick={() => setConfirmDelete(true)}>
-                  Delete employee
+                  {t('Delete employee')}
                 </button>
               )}
             </div>
@@ -375,15 +376,15 @@ function MemorySection({ agentId }: { agentId: string }) {
   }
   return (
     <section className="form-section">
-      <h3>Memory</h3>
-      <p className="hint">What this employee remembers across conversations. It rewrites itself after they speak; you can correct or clear it.</p>
-      <textarea rows={8} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Nothing remembered yet." />
+      <h3>{t('Memory')}</h3>
+      <p className="hint">{t('What this employee remembers across conversations. It rewrites itself after they speak; you can correct or clear it.')}</p>
+      <textarea rows={8} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('Nothing remembered yet.')} />
       <div className="confirm">
         <button type="button" className="btn btn-primary" disabled={busy || notes === saved} onClick={() => void save(notes)}>
-          Save notes
+          {t('Save notes')}
         </button>
         <button type="button" className="btn btn-danger-ghost" disabled={busy || !saved} onClick={() => void save('')}>
-          Clear memory
+          {t('Clear memory')}
         </button>
       </div>
     </section>

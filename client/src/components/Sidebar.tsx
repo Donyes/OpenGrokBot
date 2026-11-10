@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useState } from 'react'
 import type { ApprovalRequest, Conversation, Team } from '../../../shared/types'
 import { conversationAvatars, conversationTitle, formatTime, personFor } from '../people'
@@ -42,7 +43,7 @@ export function Sidebar({ team, conversations, activeId, busy, approvals, readTi
     const last = c.messages[c.messages.length - 1]
     const people = conversationAvatars(c).map((id) => personFor(team, id))
     const active = c.id === activeId
-    const preview = last ? previewOf(team, c, last.authorId, last.text) : c.kind === 'group' ? 'Say hi to the team' : 'Start a conversation'
+    const preview = last ? previewOf(team, c, last.authorId, last.text) : c.kind === 'group' ? t('Say hi to the team') : t('Start a conversation')
     const agent = c.kind === 'dm' ? people[0]?.agent : undefined
     const since = lastRead(c.id)
     const unread = active ? 0 : c.messages.filter((m) => m.authorId !== 'user' && m.status === 'done' && m.createdAt > since).length
@@ -68,19 +69,19 @@ export function Sidebar({ team, conversations, activeId, busy, approvals, readTi
               {conversationTitle(team, c)}
             </span>
             {agent?.department && <span className="badge">{agent.department}</span>}
-            {agent?.muted && <span className="badge" title="Muted in groups">muted</span>}
+            {agent?.muted && <span className="badge" title={t('Muted in groups')}>{t('muted')}</span>}
             {last && <span className="conversation-time">{formatTime(last.createdAt)}</span>}
           </span>
           <span className="conversation-row">
             <span className="conversation-preview">{preview}</span>
-            {needs ? <span className="dot is-attention" title="Needs your approval" /> : busy.has(c.id) ? <span className="dot" aria-label="Replying" /> : unread > 0 ? <span className="unread">{unread > 99 ? '99+' : unread}</span> : null}
+            {needs ? <span className="dot is-attention" title={t('Needs your approval')} /> : busy.has(c.id) ? <span className="dot" aria-label={t('Replying')} /> : unread > 0 ? <span className="unread">{unread > 99 ? '99+' : unread}</span> : null}
           </span>
         </span>
         <span
           className="conversation-more"
           role="button"
           tabIndex={-1}
-          aria-label="More"
+          aria-label={t('More')}
           onClick={(e) => {
             e.stopPropagation()
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -96,22 +97,22 @@ export function Sidebar({ team, conversations, activeId, busy, approvals, readTi
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-        <button type="button" className="icon-button" title="Search (Ctrl+K)" aria-label="Search" onClick={onSearch}>
+        <button type="button" className="icon-button" title={t('Search (Ctrl+K)')} aria-label={t('Search')} onClick={onSearch}>
           <SearchIcon />
         </button>
-        <button type="button" className="icon-button" title="New group chat" aria-label="New group chat" onClick={onNewChat}>
+        <button type="button" className="icon-button" title={t('New group chat')} aria-label={t('New group chat')} onClick={onNewChat}>
           <PlusIcon />
         </button>
       </div>
       <label className="search">
         <SearchIcon />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Filter')} />
       </label>
       <nav className="conversation-list">
         {visible.map(row)}
         {hidden.length > 0 && (
           <button type="button" className="hidden-toggle" onClick={() => setShowHidden((v) => !v)}>
-            {showHidden ? 'Hide hidden chats' : `Show ${hidden.length} hidden chat${hidden.length === 1 ? '' : 's'}`}
+            {showHidden ? t('Hide hidden chats') : t(hidden.length === 1 ? 'Show {count} hidden chat' : 'Show {count} hidden chats', { count: hidden.length })}
           </button>
         )}
         {showHidden && hidden.map(row)}
@@ -121,7 +122,7 @@ export function Sidebar({ team, conversations, activeId, busy, approvals, readTi
           <span className="sidebar-item-icon">
             <GearIcon />
           </span>
-          <span>Settings</span>
+          <span>{t('Settings')}</span>
         </button>
         <button type="button" className="sidebar-item" onClick={onSettings}>
           <Avatar person={owner} size={30} />
@@ -135,7 +136,7 @@ export function Sidebar({ team, conversations, activeId, busy, approvals, readTi
 
 function previewOf(team: Team, c: Conversation, authorId: string, text: string): string {
   const clean = text.replace(/\s+/g, ' ').trim()
-  if (clean.length === 0) return `${personFor(team, authorId).name} is typing…`
+  if (clean.length === 0) return t('{person} is typing…', { person: personFor(team, authorId).name })
   if (c.kind === 'dm' || authorId === 'user') return clean
   return `${personFor(team, authorId).name}: ${clean}`
 }

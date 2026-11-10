@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import { useState } from 'react'
 import type { Conversation, Team } from '../../../shared/types'
 import { createConversation, updateConversation } from '../api'
@@ -40,18 +41,18 @@ export function NewChat({ team, conversation, onDone }: NewChatProps) {
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onDone()}>
       <div className="modal sheet" role="dialog">
-        <h2>{conversation ? 'Edit chat' : 'New group chat'}</h2>
+        <h2>{conversation ? t('Edit chat') : t('New group chat')}</h2>
         {error && <div className="form-error">{error}</div>}
         <label className="field">
-          <span>Name</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Product war room" autoFocus />
+          <span>{t('Name')}</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Product war room')} autoFocus />
         </label>
         {!isMain && (
           <div className="field">
             <span>
-              Members{' '}
+              {t('Members')}{' '}
               <button type="button" className="link" onClick={all}>
-                select all
+                {t('select all')}
               </button>
             </span>
             <div className="member-picks">
@@ -70,10 +71,10 @@ export function NewChat({ team, conversation, onDone }: NewChatProps) {
         )}
         <div className="actions">
           <button type="button" className="btn" onClick={() => onDone()}>
-            Cancel
+            {t('Cancel')}
           </button>
           <button type="button" className="btn btn-primary" disabled={busy || (!isMain && members.length === 0)} onClick={() => void save()}>
-            {busy ? 'Saving…' : conversation ? 'Save' : 'Create'}
+            {busy ? t('Saving…') : conversation ? t('Save') : t('Create')}
           </button>
         </div>
       </div>
